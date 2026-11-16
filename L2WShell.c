@@ -6,12 +6,12 @@
 #define MAX_LINE 1024
 #define MAX_ARGS 16
 
-typedef int (__stdcall *ParseCommandFn)(char *, char *[], int);
-typedef int (__cdecl *ExecuteCommandFn)(const char *, const char *const [], int);
+typedef int(__stdcall* ParseCommandFn)(char*, char* [], int);
+typedef int(__cdecl* ExecuteCommandFn)(const char*, const char* const [], int);
 
 typedef struct {
-    const char *linux_name;
-    const char *windows_name;
+    const char* linux_name;
+    const char* windows_name;
     int min_args;
     int max_args;
 } Command;
@@ -23,7 +23,7 @@ static const Command commands[] = {
     {"rmdir", "rmdir", 1, 1}, {"echo", "echo", 1, MAX_ARGS - 1}
 };
 
-static const Command *find_command(const char *name)
+static const Command* find_command(const char* name)
 {
     size_t i;
     for (i = 0; i < sizeof(commands) / sizeof(commands[0]); ++i)
@@ -32,9 +32,9 @@ static const Command *find_command(const char *name)
     return NULL;
 }
 
-static int safe_path(const char *s)
+static int safe_path(const char* s)
 {
-    const unsigned char *p = (const unsigned char *)s;
+    const unsigned char* p = (const unsigned char*)s;
     if (!p || !*p)
         return 0;
     while (*p) {
@@ -45,9 +45,9 @@ static int safe_path(const char *s)
     return 1;
 }
 
-static int dispatch(char *args[], int argc, ExecuteCommandFn execute)
+static int dispatch(char* args[], int argc, ExecuteCommandFn execute)
 {
-    const Command *cmd;
+    const Command* cmd;
     if (argc == 0)
         return 0;
     if (strcmp(args[0], "exit") == 0) {
@@ -77,13 +77,13 @@ static int dispatch(char *args[], int argc, ExecuteCommandFn execute)
         HANDLE h;
         CONSOLE_SCREEN_BUFFER_INFO info;
         DWORD cells, written;
-        COORD origin = {0, 0};
+        COORD origin = { 0, 0 };
         if (argc != 1) { puts("Usage: clear"); return 1; }
         h = GetStdHandle(STD_OUTPUT_HANDLE);
         if (!GetConsoleScreenBufferInfo(h, &info)) return 1;
         cells = (DWORD)info.dwSize.X * (DWORD)info.dwSize.Y;
         if (!FillConsoleOutputCharacterA(h, ' ', cells, origin, &written)) return 1;
-        if (!FillConsoleOutputAttribute(h, info.dwAttributes, cells, origin, &written)) return 1;
+        if (!FillConsoleOutputAttribute(h, info.wAttributes, cells, origin, &written)) return 1;
         if (!SetConsoleCursorPosition(h, origin)) return 1;
         return 0;
     }
@@ -94,7 +94,7 @@ static int dispatch(char *args[], int argc, ExecuteCommandFn execute)
         puts("Incorrect number of arguments.");
         return 1;
     }
-    return execute(cmd->windows_name, (const char *const *)(args + 1), argc - 1);
+    return execute(cmd->windows_name, (const char* const*)(args + 1), argc - 1);
 }
 
 int main(void)
@@ -103,7 +103,7 @@ int main(void)
     ParseCommandFn parse;
     ExecuteCommandFn execute;
     char line[MAX_LINE];
-    char *args[MAX_ARGS];
+    char* args[MAX_ARGS];
     int argc;
 
     dll = LoadLibraryA("L2WShellDLL.dll");
@@ -118,7 +118,6 @@ int main(void)
         FreeLibrary(dll);
         return 1;
     }
-    FreeLibrary(dll);
     puts("L2WShell - Linux commands on Windows. Type help.");
     for (;;) {
         fputs("l2w> ", stdout);
@@ -127,7 +126,7 @@ int main(void)
             break;
         if (!strchr(line, '\n') && !feof(stdin)) {
             int ch;
-            while ((ch = getchar()) != '\n' && ch != EOF) { }
+            while ((ch = getchar()) != '\n' && ch != EOF) {}
             puts("Input too long.");
             continue;
         }
