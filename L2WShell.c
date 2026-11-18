@@ -6,7 +6,7 @@
 #define MAX_LINE 1024
 #define MAX_ARGS 16
 
-typedef int(__stdcall* ParseCommandFn)(char*, char* [], int);
+typedef int(__cdecl* ParseCommandFn)(char*, char* [], int);
 typedef int(__cdecl* ExecuteCommandFn)(const char*, const char* const [], int);
 
 typedef struct {
@@ -106,13 +106,14 @@ int main(void)
     char* args[MAX_ARGS];
     int argc;
 
-    dll = LoadLibraryA("L2WShellDLL.dll");
+    dll = LoadLibraryA("C:\\Users\\Student\\source\\repos\\GoodDLL\\Debug\\GoodDLL.dll");
     if (!dll) {
+
         fprintf(stderr, "Unable to load L2WShellDLL.dll: %lu\n", GetLastError());
         return 1;
     }
-    parse = (ParseCommandFn)GetProcAddress(dll, "ParseCmd");
-    execute = (ExecuteCommandFn)GetProcAddress(dll, "ExecCmd");
+    parse = (ParseCommandFn)GetProcAddress(dll, "_ParseCmd@12");
+    execute = (ExecuteCommandFn)GetProcAddress(dll, "_ExecuteCommand@12");
     if (!parse || !execute) {
         fprintf(stderr, "Missing required DLL export.\n");
         FreeLibrary(dll);
@@ -129,6 +130,7 @@ int main(void)
             while ((ch = getchar()) != '\n' && ch != EOF) {}
             puts("Input too long.");
             continue;
+
         }
         argc = parse(line, args, MAX_ARGS);
         if (argc < 0) { puts("Malformed command."); continue; }
